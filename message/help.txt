@@ -1,0 +1,1 @@
+'/aboutus Подробнее о нас\n/orderletters Заказать письмо\n/price Стоимость услуг\n/promotions Акции\n/agreement Правила и соглашения'

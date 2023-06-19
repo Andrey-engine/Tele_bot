@@ -14,68 +14,89 @@ This is a temporary script file.
 import telebot
 from telebot import types # для указание типов
 
+import pathlib#для указания пути к файлу
+from pathlib import Path
+ 
+import codecs
+
 f = open('API_iAdresat_bot.txt','r')
 bot = telebot.TeleBot(f.readline());
-f.close()
-
+f.close() 
+    
 @bot.message_handler(commands=["start"])
 
 def start(message, res=False):
+       
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    btn1 = types.KeyboardButton("Подробнее о нас")
+    
+    btn1 = types.KeyboardButton("Подробнее о нас") # создать связь со словорём
     btn2 = types.KeyboardButton("Заказать письмо")
     btn3 = types.KeyboardButton("Стоимость услуг")
     btn4 = types.KeyboardButton("Акции")
     btn5 = types.KeyboardButton("Правила и соглашения")
     
     markup.add(btn1, btn2, btn3, btn4, btn5)
-    bot.send_message(message.chat.id, text="Привет, {0.first_name}! Мы команда...".format(message.from_user), reply_markup=markup)
-
-@bot.message_handler(content_types=['button']) 
-def button_message(message):
-    markup=types.ReplyKeyboardMarkup(resize_keyboard=True)
-    item1=types.KeyboardButton("Кнопка")
-    markup.add(item1)
-    bot.send_message(message.chat.id,'Выберите что вам надо',reply_markup=markup)
+    
+    bot.send_message(message.chat.id, text="Привет, {0.first_name}! Добро пожаловать в чат-бот компании «ЯАдресат», которая отправляет неожиданные бумажные письма! Выберите интересующий Вас раздел.".format(message.from_user), reply_markup=markup)
+    
 
 
 @bot.message_handler(content_types=['text'])   
 
 def get_text_messages(message):
     
-    command = {'/help': 'вот что я могу:',  
+    command = {'/help': 'вот что я могу:',  # объеденить в один словарь
                '/aboutus': 'Расскажем подробнее о нас…',
                '/orderletters': 'Выберите тип письма',
-               '/price': '3:',
-               '/promotions': '4:',
-               '/agreement': '5:'}
+               '/price': 'Стоимость услуг составляет…',
+               '/promotions': 'Наши дейтсвующие акции…',
+               '/agreement': 'Правила и соглашения компании ЯАдресат…'}
+    
+    button = {'Подробнее о нас':'/aboutus',  
+             "Заказать письмо"  : '/orderletters',
+             "Стоимость услуг"  : '/price',
+             "Акции" : '/promotions',
+             "Правила и соглашения": '/agreement'}
+    
     
     if command.get(message.text)!=None:
-        bot.send_message(message.from_user.id, command.get(message.text))  
-        globals()[message.text[1:]](message)
-        #bot.register_next_step_handler(message, globals()[message.text[1:]]())# очень опасно надо исправить
+        func =message.text[1:]
+        globals()[func](message,file_txt(func + '.txt'))
+    elif button.get(message.text)!=None:
+        func = button.get(message.text)[1:]
+        globals()[func](message,file_txt(func + '.txt') )  # не корректный вызов функции
     else:
         bot.send_message(message.from_user.id, "Я тебя не понимаю. Напиши /help.")
         
-def help(message):
-    bot.send_message(message.from_user.id, "Я тебя не понимаю. Напиши /help.")
-    print('help')
+def help(message, answer):
+    bot.send_message(message.from_user.id, answer)
+          
 
-def aboutus(message):
-    print('aboutus')
+def aboutus(message, answer):
+    bot.send_message(message.from_user.id, answer)
+   
 
-def orderletters(message):
-    print('orderletters')
+def orderletters(message, answer):
+    markup = types.InlineKeyboardMarkup()
+    btn_my_site= types.InlineKeyboardButton(text='Наш сайт', url='https://ru.wikipedia.org/wiki/%D0%9F%D0%B8%D1%81%D1%8C%D0%BC%D0%BE')
+    markup.add(btn_my_site)
+    bot.send_message(message.chat.id, answer, reply_markup = markup)
+    
+def price(message, answer):
+    bot.send_message(message.from_user.id, answer)    
+    
+    
+def promotions(message, answer):
+    bot.send_message(message.from_user.id, answer) 
 
-def price(message):
-    print('price')    
+def agreement(message, answer):
+    bot.send_message(message.from_user.id, answer)    
 
-def promotions(message):
-    print('promotions') 
-
-def agreement(message):
-    print('agreement')     
-
+def file_txt(name_file):# добавить обработку ошибок
+    path = Path("message", name_file)
+    with codecs.open(path, 'r', encoding='utf-8') as file:
+        read_file = file.read()
+    return read_file
     
 print("work")        
 bot.polling(none_stop=True, interval=1)
