@@ -11,18 +11,33 @@ Spyder Editor
 
 This is a temporary script file.
 """
+
+# import os # для сервера
+# from background import keep_alive #импорт функции для поддержки работоспособности
+# import pip
+# pip.main(['install', 'pytelegrambotapi'])
+
 import telebot
 from telebot import types # для указание типов
+
+from aiogram import Bot, Dispatcher, executor, types
+from aiogram.types.message import ContentType
 
 import pathlib#для указания пути к файлу
 from pathlib import Path
  
 import codecs
 
+import os
+from background import keep_alive
+
 f = open('API_iAdresat_bot.txt','r')
-bot = telebot.TeleBot(f.readline());
-f.close() 
-    
+if (f):
+    bot = telebot.TeleBot(f.readline());
+    f.close() 
+else:
+    bot = telebot.TeleBot(os.getenv("API_iAdresat_bot"))
+
 @bot.message_handler(commands=["start"])
 
 def start(message, res=False):
@@ -97,6 +112,6 @@ def file_txt(name_file):# добавить обработку ошибок
     with codecs.open(path, 'r', encoding='utf-8') as file:
         read_file = file.read()
     return read_file
-    
-print("work")        
+          
+keep_alive()    
 bot.polling(none_stop=True, interval=1)
