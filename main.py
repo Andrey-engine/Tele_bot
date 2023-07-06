@@ -31,12 +31,7 @@ import codecs
 import os
 from background import keep_alive
 
-f = open('API_iAdresat_bot.txt','r')
-if (f):
-    bot = telebot.TeleBot(f.readline());
-    f.close() 
-else:
-    bot = telebot.TeleBot(os.getenv("API_iAdresat_bot"))
+bot = telebot.TeleBot(os.getenv("API_iAdresat_bot"))
 
 @bot.message_handler(commands=["start"])
 
